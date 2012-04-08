@@ -87,9 +87,9 @@ def cuda_installation():
     lib_path = 'C:/CUDA/lib'
     inc_path = 'C:/CUDA/include'
   elif os.name == 'posix':
-    bin_path = '/usr/local/cuda/bin'
-    lib_path = '/usr/local/cuda/lib'
-    inc_path = '/usr/local/cuda/include'
+    bin_path = '/opt/cuda-toolkit/bin'
+    lib_path = '/opt/cuda-toolkit/lib'
+    inc_path = '/opt/cuda-toolkit/include'
   else:
     raise ValueError, 'Error: unknown OS.  Where is nvcc installed?'
    
@@ -333,6 +333,7 @@ for (host,device) in itertools.product(host_backends, device_backends):
 
   # populate the environment
   env.Append(CPPPATH = inc_paths())
+  env.Append(ENV = os.environ)
   
   env.Append(CCFLAGS = cc_compiler_flags(env.subst('$CXX'), env['mode'], host, device, env['Wall'], env['Werror']))
   
