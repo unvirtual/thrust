@@ -328,9 +328,7 @@ equal_range(tag,
             const T &value,
             StrictWeakOrdering comp)
 {
-  ForwardIterator lb = thrust::lower_bound(first, last, value, comp);
-  ForwardIterator ub = thrust::upper_bound(first, last, value, comp);
-  return thrust::make_pair(lb, ub);
+  return scalar::equal_range(first, last, value, comp);
 }
 
 

@@ -125,8 +125,46 @@ __host__ __device__
                 const T &val,
                 BinaryPredicate comp)
 {
-  RandomAccessIterator lb = thrust::system::detail::generic::scalar::lower_bound(first, last, val, comp);
-  return thrust::make_pair(lb, thrust::system::detail::generic::scalar::upper_bound(lb, last, val, comp));
+  // wrap comp
+  thrust::detail::host_device_function<
+    BinaryPredicate,
+    bool
+  > wrapped_comp(comp);
+
+  typedef typename thrust::iterator_difference<RandomAccessIterator>::type difference_type;
+
+  // XXX should read len = distance(first,last)
+  difference_type len = last - first;
+
+  while(len > 0)
+  {
+    difference_type half = len >> 1;
+    RandomAccessIterator middle = first;
+
+    // XXX should read advance(middle,half)
+    middle += half;
+
+    if(wrapped_comp(*middle, val))
+    {
+      first = middle;
+      ++first;
+      len = len - half - 1;
+    }
+    else if(wrapped_comp(val, *middle))
+    {
+      len = half;
+    }
+    else
+    {
+      RandomAccessIterator lb = scalar::lower_bound(first, middle, val, comp);
+      // XXX should read advance(first, len)
+      first += len;
+      RandomAccessIterator ub = scalar::upper_bound(++middle, first, val, comp);
+      return thrust::make_pair(lb, ub);
+    }
+  }
+
+  return thrust::make_pair(first, first);
 }
 
 
